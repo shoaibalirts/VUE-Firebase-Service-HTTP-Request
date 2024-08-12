@@ -3,18 +3,25 @@
     <base-card>
       <h2>Submitted Experiences</h2>
       <div>
-        <base-button @click="loadExperiences">Load Submitted Experiences</base-button>
+        <base-button @click="loadExperiences"
+          >Load Submitted Experiences</base-button
+        >
       </div>
       <p v-if="isLoading">Loading...</p>
-      <p v-else-if="!isLoading && (!results || results.length===0)">No stored experiences found. Start adding some survey results first.</p>
-      <ul v-else-if="!isLoading && results && results.length>0">
+      <p v-else-if="!isLoading && error">
+        {{ error }}
+      </p>
+      <p v-else-if="!isLoading && (!results || results.length === 0)">
+        No stored experiences found. Start adding some survey results first.
+      </p>
+
+      <ul v-else>
         <survey-result
           v-for="result in results"
           :key="result.id"
           :name="result.userName"
           :rating="result.rating"
         ></survey-result>
-        
       </ul>
     </base-card>
   </section>
@@ -26,35 +33,45 @@ export default {
   components: {
     SurveyResult,
   },
-  data(){
+  data() {
     return {
-      results:[],
+      results: [],
       isLoading: false,
+      error: null,
     };
   },
   methods: {
-    async loadExperiences(){
-      this.isLoading = true;
-      const BASE_API_URL = 'https://vue-http-project-f36ed-default-rtdb.europe-west1.firebasedatabase.app/';
-      const url = new URL('surveys.json',BASE_API_URL);
-      const response = await fetch(url);
-      if(response.ok){
-      const resData = await response.json();
-      this.isLoading =false;
-
-      for(const key in resData){
-        resData[key].id = Math.random();
-        this.results.push(resData[key]);        
-      }
-      console.log(this.results); 
-      } else {
+    async loadExperiences() {
+      try {
         this.isLoading = true;
+        this.error = null;
+        const BASE_API_URL =
+          'https://vue-http-project-f36ed-default-rtdb.europe-west1.firebasedatabase.app/';
+        const url = new URL('surveys.json', BASE_API_URL);
+        const response = await fetch(url);
+
+        if (response.ok) {
+          const resData = await response.json();
+          this.isLoading = false;
+
+          for (const key in resData) {
+            resData[key].id = Math.random();
+            this.results.push(resData[key]);
+          }
+          console.log(this.results);
+        } else {
+          this.isLoading = true;
+        }
+      } catch (error) {
+        console.log(error);
+        this.isLoading = false;
+        this.error = 'Failed to fetch data - please try again later.';
       }
-    }
+    },
   },
   mounted() {
     this.loadExperiences();
-  }
+  },
 };
 </script>
 
