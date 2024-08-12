@@ -5,13 +5,15 @@
       <div>
         <base-button @click="loadExperiences">Load Submitted Experiences</base-button>
       </div>
-      <ul>
+      <p v-if="isLoading">Loading...</p>
+      <ul v-else>
         <survey-result
           v-for="result in results"
           :key="result.id"
           :name="result.userName"
           :rating="result.rating"
         ></survey-result>
+        
       </ul>
     </base-card>
   </section>
@@ -26,21 +28,26 @@ export default {
   data(){
     return {
       results:[],
+      isLoading: false,
     };
   },
   methods: {
     async loadExperiences(){
+      this.isLoading = true;
       const BASE_API_URL = 'https://vue-http-project-f36ed-default-rtdb.europe-west1.firebasedatabase.app/';
       const url = new URL('surveys.json',BASE_API_URL);
       const response = await fetch(url);
       if(response.ok){
       const resData = await response.json();
-  
+      this.isLoading =false;
+
       for(const key in resData){
         resData[key].id = Math.random();
         this.results.push(resData[key]);        
       }
       console.log(this.results); 
+      } else {
+        this.isLoading = true;
       }
     }
   },
