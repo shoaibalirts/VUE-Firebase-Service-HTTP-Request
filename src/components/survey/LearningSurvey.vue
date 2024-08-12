@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -61,16 +62,12 @@ export default {
       // });
       const BASE_API_URL = 'https://vue-http-project-f36ed-default-rtdb.europe-west1.firebasedatabase.app/';
       const url = new URL('surveys.json', BASE_API_URL);
-      const response = fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({
+      const myObj = {
         userName: this.enteredName,
         rating: this.chosenRating,
-      }),
-      headers: {
-        'Content-Type':"application.json",
-      },
-      });
+      }
+      axios.post(url, myObj);
+      
       
       
       
